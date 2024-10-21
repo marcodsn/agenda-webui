@@ -1,0 +1,100 @@
+.calendarContainer {
+    color: var(--color-black);
+    background-color: transparent;
+    border-radius: 0.3rem;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+    box-sizing: border-box;
+    border: 2px solid rgba(192, 192, 192, 0.1);
+}
+
+.cornerBox {
+    width: 60px;
+    height: 50px;
+    background-color: #262626;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+}
+
+.timeHeader {
+    width: 60px;
+    background-color: #262626;
+    color: var(--color-light-gray);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    margin-top: 50px;
+}
+
+.timeCell {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.calendarGrid {
+    display: flex;
+    flex-grow: 1;
+    overflow-x: auto;
+}
+
+.dayColumn {
+    flex: 1;
+    min-width: 100px;
+    border-left: 1px solid rgba(192, 192, 192, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.todayColumn {
+    background-color: rgba(0, 96, 199, 0.1);
+}
+
+.todayColumn .dateHeader {
+    background-color: var(--color-muted-blue);
+    color: white;
+}
+
+.dateHeader {
+    height: 50px;
+    padding: 5px;
+    text-align: center;
+    background-color: #262626;
+    color: var(--color-light-gray);
+    flex-shrink: 0;
+}
+
+.daySchedule {
+    flex-grow: 1;
+    position: relative;
+    background-size: 100% 60px;
+    background-image: linear-gradient(to bottom, rgba(192, 192, 192, 0.3) 1px, transparent 1px);
+}
+
+.currentTimeIndicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--color-orange);
+    z-index: 10;
+}
+
+.currentTimeTooltip {
+    position: absolute;
+    left: 0;
+    top: -10px;
+    background-color: var(--color-orange);
+    color: white;
+    padding: 2px 4px;
+    font-size: 11px;
+    border-radius: 3px;
+    width: 60px;
+}

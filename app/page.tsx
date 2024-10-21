@@ -1,13 +1,35 @@
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import * as Tabs from '@radix-ui/react-tabs';
+import * as Collapsible from '@radix-ui/react-collapsible';
 import { useApi } from './contexts/ApiContext';
 import { tasksApi, CreateTaskDto } from './api/tasksApi';
 import { schedulesApi, CreateScheduleDto, ScheduleStatus } from './api/schedulesApi';
 import { settingsApi } from './api/settingsApi';
+import Calendar from './components/Calendar';
+import Header from './components/Header';
+import ItemCard from './components/ItemCard';
+import { IconChevronLeft, IconChevronRight, IconRefresh, IconPlus } from '@tabler/icons-react';
 
 export default function Home() {
   const { tasks, schedules, settings, refreshTasks, refreshSchedules, refreshSettings } = useApi();
+  const [currentWeekStart, setCurrentWeekStart] = useState(getMonday(new Date()));
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  function getMonday(d: Date) {
+    d = new Date(d);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);  // Adjust when day is sunday
+    const monday = new Date(d.setDate(diff));
+    monday.setHours(0, 0, 0, 0); // Set time to midnight
+    return monday;
+  }
 
   const createDemoTask = async () => {
     const demoTask: CreateTaskDto = {
@@ -28,13 +50,12 @@ export default function Home() {
       canSplit: false,
       description: 'This is a demo task',
     };
-    
+
     try {
       await tasksApi.create(demoTask);
       refreshTasks();
     } catch (error) {
       console.error('Error creating demo task:', error);
-      // Optionally, show an error message to the user
     }
   };
 
@@ -63,89 +84,154 @@ export default function Home() {
     refreshSettings();
   };
 
+  const upcomingSchedules = schedules
+    .filter(schedule => new Date(schedule.endTime) > new Date())
+    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+    .slice(0, 10);
+
+  const getDatesForWeek = (startDate: Date) => {
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      dates.push(date);
+    }
+    return dates;
+  };
+
+  const weekDates = getDatesForWeek(currentWeekStart);
+
+  const formatWeekRange = (start: Date) => {
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    const formatOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    return `${start.toLocaleDateString('en-US', formatOptions)} - ${end.toLocaleDateString('en-US', formatOptions)}`;
+  };
+
+  const changeWeek = (direction: 'prev' | 'next') => {
+    const newStart = new Date(currentWeekStart);
+    newStart.setDate(currentWeekStart.getDate() + (direction === 'next' ? 7 : -7));
+    setCurrentWeekStart(newStart);
+  };
+
+  const isCurrentWeek = () => {
+    const today = new Date();
+    const mondayOfCurrentWeek = getMonday(today);
+    return currentWeekStart.getTime() === mondayOfCurrentWeek.getTime();
+  };
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Task Manager</h1>
+    <div className="flex flex-col h-screen">
+      <Header />
 
-      <div className="mb-4">
-        <button onClick={createDemoTask} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Create Demo Task</button>
-        <button onClick={createDemoSchedule} className="bg-green-500 text-white px-4 py-2 rounded mr-2">Create Demo Schedule</button>
-        <button onClick={createDemoSetting} className="bg-purple-500 text-white px-4 py-2 rounded mr-2">Create Demo Setting</button>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left panel with tabs */}
+        <aside className="w-full bg-brand-secondary p-4 pt-1 flex-shrink-0 lg:w-72">
+          <Tabs.Root defaultValue="upcoming" className="flex flex-col h-full">
+            <Tabs.List className="flex space-x-2 mb-4 tabs-list">
+              <Tabs.Trigger value="upcoming" className="tab-trigger">Upcoming</Tabs.Trigger>
+              <Tabs.Trigger value="tasks" className="tab-trigger">Tasks</Tabs.Trigger>
+              <Tabs.Trigger value="settings" className="tab-trigger">Settings</Tabs.Trigger>
+            </Tabs.List>
+            <Tabs.Content value="upcoming" className="flex-grow overflow-auto custom-scrollbar">
+              <button onClick={createDemoSchedule} className="bg-neutral-200 text-black px-2 pr-4 py-2 rounded flex justify-between">
+                <IconPlus className='size-5 mr-2' />
+                <span>Demo Schedule</span>
+              </button>
+              <ul className='pt-2'>
+                {upcomingSchedules.map(schedule => (
+                  <ItemCard
+                    key={schedule.id}
+                    title={schedule.task.title}
+                    subtitle={new Date(schedule.startTime).toLocaleString()}
+                    onClick={() => console.log('Clicked schedule:', schedule.id)}
+                    backgroundColor={schedule.task.color}
+                  />
+                ))}
+              </ul>
+            </Tabs.Content>
+            <Tabs.Content value="tasks" className="flex-grow overflow-auto custom-scrollbar">
+              <button onClick={createDemoTask} className="bg-neutral-200 text-black px-2 pr-4 py-2 rounded flex justify-between">
+                <IconPlus className='size-5 mr-2' />
+                <span>Demo Task</span>
+              </button>
+            </Tabs.Content>
+            <Tabs.Content value="settings" className="flex-grow overflow-auto custom-scrollbar">
+              <button onClick={createDemoSetting} className="bg-neutral-200 text-black px-2 pr-4 py-2 rounded flex justify-between">
+                <IconPlus className='size-5 mr-2' />
+                <span>Demo Setting</span>
+              </button>
+            </Tabs.Content>
+          </Tabs.Root>
+        </aside>
+
+        {/* Main content area with calendar */}
+        <main className="flex-1 overflow-auto p-4 pt-2 hidden md:block custom-scrollbar">
+          <div className="flex items-center mb-4">
+            <button onClick={() => changeWeek('prev')} className="px-3 py-1">
+              <IconChevronLeft />
+            </button>
+            <h2 className="text-md font-semibold">
+              {isCurrentWeek() ? 'This week' : formatWeekRange(currentWeekStart)}
+            </h2>
+            <button onClick={() => changeWeek('next')} className="px-3 py-1">
+              <IconChevronRight />
+            </button>
+          </div>
+
+          <Calendar
+            schedules={schedules}
+            startHour={6}
+            endHour={24}
+            onCellClick={(date, time) => {
+              console.log('Clicked:', date, time);
+              // Handle click event, e.g., open a modal to add a new schedule
+            }}
+            dates={weekDates}
+            currentTime={currentTime}
+          />
+          <button onClick={refreshSchedules} className="mt-4">
+            <IconRefresh />
+          </button>
+        </main>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Tasks</h2>
-        <table className="w-full border-collapse border border-gray-300 text-gray-800">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 p-2">ID</th>
-              <th className="border border-gray-300 p-2">Title</th>
-              <th className="border border-gray-300 p-2">Duration</th>
-              <th className="border border-gray-300 p-2">Priority</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map(task => (
-              <tr key={task.id}>
-                <td className="border border-gray-300 p-2">{task.id}</td>
-                <td className="border border-gray-300 p-2">{task.title}</td>
-                <td className="border border-gray-300 p-2">{task.estimatedDuration} min</td>
-                <td className="border border-gray-300 p-2">{task.priority}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button onClick={refreshTasks} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Refresh Tasks</button>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Schedules</h2>
-        <table className="w-full border-collapse border border-gray-300 text-gray-800">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 p-2">ID</th>
-              <th className="border border-gray-300 p-2">Task</th>
-              <th className="border border-gray-300 p-2">Start Time</th>
-              <th className="border border-gray-300 p-2">End Time</th>
-              <th className="border border-gray-300 p-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schedules.map(schedule => (
-              <tr key={schedule.id}>
-                <td className="border border-gray-300 p-2">{schedule.id}</td>
-                <td className="border border-gray-300 p-2">{schedule.task.title}</td>
-                <td className="border border-gray-300 p-2">{new Date(schedule.startTime).toLocaleString()}</td>
-                <td className="border border-gray-300 p-2">{new Date(schedule.endTime).toLocaleString()}</td>
-                <td className="border border-gray-300 p-2">{schedule.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button onClick={refreshSchedules} className="mt-2 bg-green-500 text-white px-4 py-2 rounded">Refresh Schedules</button>
-      </div>
-
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Settings</h2>
-        <table className="w-full border-collapse border border-gray-300 text-gray-800">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 p-2">ID</th>
-              <th className="border border-gray-300 p-2">Key</th>
-              <th className="border border-gray-300 p-2">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            {settings.map(setting => (
-              <tr key={setting.id}>
-                <td className="border border-gray-300 p-2">{setting.id}</td>
-                <td className="border border-gray-300 p-2">{setting.key}</td>
-                <td className="border border-gray-300 p-2">{setting.value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button onClick={refreshSettings} className="mt-2 bg-purple-500 text-white px-4 py-2 rounded">Refresh Settings</button>
+      {/* Mobile view, WIP!!! */}
+      <div className="md:hidden">
+        <Collapsible.Root>
+          {/* <Collapsible.Trigger className="block w-full bg-brand-primary text-white p-2">
+            Toggle Menu
+          </Collapsible.Trigger> */}
+          <Collapsible.Content className="bg-brand-secondary p-4">
+            {/* Mobile sidebar content */}
+            <Tabs.Root defaultValue="upcoming" className="flex flex-col">
+              <Tabs.List className="flex space-x-2 mb-4">
+                <Tabs.Trigger value="upcoming" className="tab-trigger">Upcoming</Tabs.Trigger>
+                <Tabs.Trigger value="tasks" className="tab-trigger">Tasks</Tabs.Trigger>
+                <Tabs.Trigger value="settings" className="tab-trigger">Settings</Tabs.Trigger>
+              </Tabs.List>
+              <Tabs.Content value="upcoming">
+                <h2 className="text-xl font-semibold mb-2">Upcoming Schedules</h2>
+                <ul>
+                  {upcomingSchedules.map(schedule => (
+                    <li key={schedule.id} className="mb-2">
+                      <p>{schedule.task.title}</p>
+                      <p>{new Date(schedule.startTime).toLocaleString()}</p>
+                    </li>
+                  ))}
+                </ul>
+              </Tabs.Content>
+              <Tabs.Content value="tasks">
+                <h2 className="text-xl font-semibold mb-2">Tasks</h2>
+                {/* Add your tasks list here */}
+              </Tabs.Content>
+              <Tabs.Content value="settings">
+                <h2 className="text-xl font-semibold mb-2">Settings</h2>
+                {/* Add your settings list here */}
+              </Tabs.Content>
+            </Tabs.Root>
+          </Collapsible.Content>
+        </Collapsible.Root>
       </div>
     </div>
   );

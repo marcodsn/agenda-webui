@@ -1,0 +1,24 @@
+.itemCard {
+    border-radius: 0.3rem;;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-left: 0.5rem solid;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    color: var(--color-light-gray);
+}
+
+.itemCard:hover {
+    transform: translateY(-2px);
+}
+
+.title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: var(--color-silver);
+}

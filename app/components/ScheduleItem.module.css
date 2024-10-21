@@ -1,0 +1,46 @@
+.scheduleItem {
+    position: absolute;
+    left: 0;
+    right: 0;
+    color: var(--color-text-dark);
+    padding: 2px 5px;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-radius: 0.3rem;
+    margin: 1px;
+    border: 2px solid;
+    transition: all 0.1s ease;
+    z-index: 1;
+}
+
+.scheduleItem:hover {
+    box-shadow: 1px 1px 3px 1px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.scheduleItem.expanded {
+    height: auto !important;
+    min-height: 100px;
+    z-index: 2;
+    white-space: normal;
+}
+
+.time {
+    font-size: 0.7rem;
+    font-weight: normal;
+}
+
+.title {
+    font-weight: bold;
+}
+
+.details {
+    margin-top: 5px;
+    font-size: 0.7rem;
+}
+
+.details p {
+    margin: 2px 0;
+}

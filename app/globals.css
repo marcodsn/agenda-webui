@@ -3,25 +3,90 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-orange: #ff4400;
+  --color-silver: #C0C0C0;
+  --color-black: #000000;
+  --color-light-gray: #F5F5F5;
+  --color-muted-blue: #2f506b;
+  --color-muted-green: #556B2F;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background-color: var(--color-black);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-roboto);
+  color: var(--color-light-gray);
+  /* background-color: var(--color-black); */
+  background-color: rgba(192, 192, 192, 0.1);
+
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-montserrat);
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+.tabs-list {
+  background-color: rgba(192, 192, 192, 0.1);
+  padding: 5px;
+  border-radius: 0.3rem;
+  display: flex;
+  justify-content: stretch;
+  width: 100%;
+}
+
+.tab-trigger {
+  padding: 0.4rem 0.5rem;
+  background-color: transparent;
+  border-radius: 0.3rem;
+  font-weight: 500;
+  color: var(--color-silver);
+  transition: all 0.2s ease-in-out;
+  flex: 1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-trigger:hover {
+  cursor: pointer;
+}
+
+.tab-trigger[data-state='active'] {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.5);
+  border-radius: 20px;
+  border: transparent;
 }
