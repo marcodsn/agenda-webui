@@ -9,8 +9,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     border-radius: 0.3rem;
-    margin: 1px;
-    border: 2px solid;
+    margin: 0.3rem;
+    border-left: 0.5rem solid;
     transition: all 0.1s ease;
     z-index: 1;
 }
@@ -21,8 +21,7 @@
 }
 
 .scheduleItem.expanded {
-    height: auto !important;
-    min-height: 100px;
+    min-height: fit-content;
     z-index: 2;
     white-space: normal;
 }

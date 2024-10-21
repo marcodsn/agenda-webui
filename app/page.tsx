@@ -138,12 +138,19 @@ export default function Home() {
                 <IconPlus className='size-5 mr-2' />
                 <span>Demo Schedule</span>
               </button>
-              <ul className='pt-2'>
+              <ul className='pt-4'>
                 {upcomingSchedules.map(schedule => (
                   <ItemCard
                     key={schedule.id}
                     title={schedule.task.title}
-                    subtitle={new Date(schedule.startTime).toLocaleString()}
+                    subtitle={new Date(schedule.startTime).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'numeric',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}
                     onClick={() => console.log('Clicked schedule:', schedule.id)}
                     backgroundColor={schedule.task.color}
                   />
@@ -216,7 +223,14 @@ export default function Home() {
                   {upcomingSchedules.map(schedule => (
                     <li key={schedule.id} className="mb-2">
                       <p>{schedule.task.title}</p>
-                      <p>{new Date(schedule.startTime).toLocaleString()}</p>
+                      <p>{new Date(schedule.startTime).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      })}</p>
                     </li>
                   ))}
                 </ul>

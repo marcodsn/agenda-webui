@@ -9,7 +9,11 @@
 }
 
 .itemCard:hover {
-    transform: translateY(-2px);
+    /* transform: translateY(-2px); */
+    /* border-top: 0.1rem solid;
+    border-bottom: 0.1rem solid;
+    border-right: 0.1rem solid; */
+    border-right: 0.1rem solid;
 }
 
 .title {

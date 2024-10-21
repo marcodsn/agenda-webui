@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './ScheduleItem.module.css';
 import { Schedule, ScheduleStatus } from '../api/schedulesApi';
+import { get } from 'http';
 
 interface ScheduleItemProps {
   schedule: Schedule;
@@ -35,13 +36,17 @@ const ScheduleItem: React.FC<ScheduleItemProps> = ({ schedule, top, height, colo
     }
   };
 
-  const getDarkerColor = (color: string) => {
-    const rgb = parseInt(color.slice(1), 16);
-    const r = Math.max(0, (rgb >> 16) - 40);
-    const g = Math.max(0, ((rgb >> 8) & 0x00FF) - 40);
-    const b = Math.max(0, (rgb & 0x0000FF) - 40);
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-  };
+  const getDarkerColor = (color: string, amount = 40) => {
+    const hex = color.replace('#', '');
+    const num = parseInt(hex, 16);
+    const r = (num >> 16) - amount;
+    const b = ((num >> 8) & 0x00FF) - amount;
+    const g = (num & 0x0000FF) - amount;
+    const newColor = `#${(g | (b << 8) | (r << 16)).toString(16)}`;
+    return newColor;
+  }
+
+  const hasDescription = schedule.task.description && schedule.task.description.trim() !== '';
 
   const backgroundColor = getStatusColor(schedule.status);
   const borderColor = getDarkerColor(backgroundColor);
@@ -58,6 +63,7 @@ const ScheduleItem: React.FC<ScheduleItemProps> = ({ schedule, top, height, colo
         height: `${height}%`,
         backgroundColor: backgroundColor,
         borderColor: borderColor,
+        color: getDarkerColor(backgroundColor, 160),
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -66,7 +72,7 @@ const ScheduleItem: React.FC<ScheduleItemProps> = ({ schedule, top, height, colo
       <div className={styles.time}>
         {formatTime(new Date(schedule.startTime))} - {formatTime(new Date(schedule.endTime))}
       </div>
-      {isHovered && (
+      {isHovered && hasDescription && (
         <div className={styles.details}>
           <p>Description: {schedule.task.description}</p>
         </div>
