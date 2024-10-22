@@ -11,6 +11,7 @@ import Calendar from './components/Calendar';
 import Header from './components/Header';
 import ItemCard from './components/ItemCard';
 import { IconChevronLeft, IconChevronRight, IconRefresh, IconPlus } from '@tabler/icons-react';
+import ScheduleList from './components/ScheduleList';
 
 export default function Home() {
   const { tasks, schedules, settings, refreshTasks, refreshSchedules, refreshSettings } = useApi();
@@ -134,37 +135,24 @@ export default function Home() {
               <Tabs.Trigger value="settings" className="tab-trigger">Settings</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="upcoming" className="flex-grow overflow-auto custom-scrollbar">
-              <button onClick={createDemoSchedule} className="bg-neutral-200 text-black px-2 pr-4 py-2 rounded flex justify-between">
+              <button onClick={createDemoSchedule} className="custom-button">
+                <IconPlus className='size-5 mr-2' />
+                <span>New Schedule</span>
+              </button>
+              <button onClick={createDemoSchedule} className="custom-button">
                 <IconPlus className='size-5 mr-2' />
                 <span>Demo Schedule</span>
               </button>
-              <ul className='pt-4'>
-                {upcomingSchedules.map(schedule => (
-                  <ItemCard
-                    key={schedule.id}
-                    title={schedule.task.title}
-                    subtitle={new Date(schedule.startTime).toLocaleString('en-US', {
-                      year: 'numeric',
-                      month: 'numeric',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    })}
-                    onClick={() => console.log('Clicked schedule:', schedule.id)}
-                    backgroundColor={schedule.task.color}
-                  />
-                ))}
-              </ul>
+              <ScheduleList upcomingSchedules={upcomingSchedules} />
             </Tabs.Content>
             <Tabs.Content value="tasks" className="flex-grow overflow-auto custom-scrollbar">
-              <button onClick={createDemoTask} className="bg-neutral-200 text-black px-2 pr-4 py-2 rounded flex justify-between">
+              <button onClick={createDemoTask} className="custom-button">
                 <IconPlus className='size-5 mr-2' />
                 <span>Demo Task</span>
               </button>
             </Tabs.Content>
             <Tabs.Content value="settings" className="flex-grow overflow-auto custom-scrollbar">
-              <button onClick={createDemoSetting} className="bg-neutral-200 text-black px-2 pr-4 py-2 rounded flex justify-between">
+              <button onClick={createDemoSetting} className="custom-button">
                 <IconPlus className='size-5 mr-2' />
                 <span>Demo Setting</span>
               </button>
@@ -223,7 +211,7 @@ export default function Home() {
                   {upcomingSchedules.map(schedule => (
                     <li key={schedule.id} className="mb-2">
                       <p>{schedule.task.title}</p>
-                      <p>{new Date(schedule.startTime).toLocaleString('en-US', {
+                      <p>{new Date(schedule.startTime).toLocaleString('en-UK', {
                         year: 'numeric',
                         month: 'numeric',
                         day: 'numeric',

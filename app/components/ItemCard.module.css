@@ -6,13 +6,11 @@
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
     color: var(--color-light-gray);
+    background-color: #262626;
 }
 
 .itemCard:hover {
     /* transform: translateY(-2px); */
-    /* border-top: 0.1rem solid;
-    border-bottom: 0.1rem solid;
-    border-right: 0.1rem solid; */
     border-right: 0.1rem solid;
 }
 

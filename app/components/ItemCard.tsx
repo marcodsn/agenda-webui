@@ -4,16 +4,14 @@ import styles from './ItemCard.module.css';
 interface ItemCardProps {
     title: string;
     subtitle?: string;
-    backgroundColor?: string;
-    borderColor?: string;
+    taskColor?: string;
     onClick?: () => void;
 }
 
 const ItemCard: React.FC<ItemCardProps> = ({
     title,
     subtitle,
-    backgroundColor,
-    borderColor,
+    taskColor,
     onClick
 }) => {
     const defaultBackgroundColor = 'var(--color-light-gray)';
@@ -31,12 +29,12 @@ const ItemCard: React.FC<ItemCardProps> = ({
     // const bgColor = backgroundColor || defaultBackgroundColor;
     const bgColor = '#262626';
     // const bdColor = borderColor || (backgroundColor ? getDarkerColor(bgColor) : defaultBorderColor);
-    const bdColor = backgroundColor || defaultBackgroundColor;
+    const bdColor = taskColor || defaultBackgroundColor;
 
     return (
         <div
             className={styles.itemCard}
-            style={{ backgroundColor: bgColor, borderColor: bdColor }}
+            style={{ borderColor: bdColor }}
             onClick={onClick}
         >
             {/* <h3 className={styles.title}>{title}</h3> */}
