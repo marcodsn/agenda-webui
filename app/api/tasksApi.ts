@@ -28,6 +28,7 @@ export interface Task {
     canSplit: boolean;
     recurrencePattern?: string;
     preferredTime?: string;
+    notes?: string;
     color?: string;
     createdAt: string;
     updatedAt: string;

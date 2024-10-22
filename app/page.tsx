@@ -9,14 +9,34 @@ import { schedulesApi, CreateScheduleDto, ScheduleStatus } from './api/schedules
 import { settingsApi } from './api/settingsApi';
 import Calendar from './components/Calendar';
 import Header from './components/Header';
-import ItemCard from './components/ItemCard';
 import { IconChevronLeft, IconChevronRight, IconRefresh, IconPlus } from '@tabler/icons-react';
 import ScheduleList from './components/ScheduleList';
+import CreateScheduleDialog from './components/CreateScheduleDialog';
+import CreateTaskDialog from './components/CreateTaskDialog';
+import ItemCard from './components/ItemCard';
 
 export default function Home() {
   const { tasks, schedules, settings, refreshTasks, refreshSchedules, refreshSettings } = useApi();
   const [currentWeekStart, setCurrentWeekStart] = useState(getMonday(new Date()));
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isCreateScheduleDialogOpen, setIsCreateScheduleDialogOpen] = useState(false);
+  const [isCreateTaskDialogOpen, setIsCreateTaskDialogOpen] = useState(false);
+
+  const openCreateScheduleDialog = () => setIsCreateScheduleDialogOpen(true);
+  const closeCreateScheduleDialog = () => setIsCreateScheduleDialogOpen(false);
+
+  const openCreateTaskDialog = () => setIsCreateTaskDialogOpen(true);
+  const closeCreateTaskDialog = () => setIsCreateTaskDialogOpen(false);
+
+  const handleScheduleCreated = () => {
+    closeCreateScheduleDialog();
+    refreshSchedules();
+  }
+
+  const handleTaskCreated = () => {
+    closeCreateTaskDialog();
+    refreshTasks();
+  }
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
@@ -135,21 +155,47 @@ export default function Home() {
               <Tabs.Trigger value="settings" className="tab-trigger">Settings</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="upcoming" className="flex-grow overflow-auto custom-scrollbar">
-              <button onClick={createDemoSchedule} className="custom-button">
+              <button onClick={openCreateScheduleDialog} className="custom-button">
                 <IconPlus className='size-5 mr-2' />
                 <span>New Schedule</span>
               </button>
-              <button onClick={createDemoSchedule} className="custom-button">
+              <CreateScheduleDialog
+                isOpen={isCreateScheduleDialogOpen}
+                onClose={closeCreateScheduleDialog}
+                onScheduleCreated={handleScheduleCreated}
+              />
+              {/* <button onClick={createDemoSchedule} className="custom-button">
                 <IconPlus className='size-5 mr-2' />
                 <span>Demo Schedule</span>
-              </button>
+              </button> */}
               <ScheduleList upcomingSchedules={upcomingSchedules} />
             </Tabs.Content>
             <Tabs.Content value="tasks" className="flex-grow overflow-auto custom-scrollbar">
-              <button onClick={createDemoTask} className="custom-button">
+              <button onClick={openCreateTaskDialog} className="custom-button">
+                <IconPlus className='size-5 mr-2' />
+                <span>New Task</span>
+              </button>
+              {/* <button onClick={createDemoTask} className="custom-button">
                 <IconPlus className='size-5 mr-2' />
                 <span>Demo Task</span>
-              </button>
+              </button> */}
+              <CreateTaskDialog
+                isOpen={isCreateTaskDialogOpen}
+                onClose={closeCreateTaskDialog}
+                onTaskCreated={handleTaskCreated}
+              />
+              <ul className="mt-4">
+                {tasks.map(task => (
+                  <li key={task.id} className="mb-2">
+                    <ItemCard
+                      title={task.title}
+                      subtitle={task.description}
+                      taskColor={task.color}
+                      onClick={() => console.log('Clicked task:', task.id)}
+                    />
+                  </li>
+                ))}
+              </ul>
             </Tabs.Content>
             <Tabs.Content value="settings" className="flex-grow overflow-auto custom-scrollbar">
               <button onClick={createDemoSetting} className="custom-button">
