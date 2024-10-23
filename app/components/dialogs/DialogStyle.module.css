@@ -131,6 +131,11 @@
     padding: 0.5rem;
     transition: background-color 0.2s ease;
     cursor: pointer;
+    border-radius: 0.3rem;
+}
+
+.selectItem:hover {
+    background-color: #333232;
 }
 
 /* Button styling */

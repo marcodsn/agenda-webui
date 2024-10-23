@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import styles from './Calendar.module.css';
 import { Schedule } from '../api/schedulesApi';
 import ScheduleItem from './ScheduleItem';
+import { useApi } from '../contexts/ApiContext';
 
 interface CalendarProps {
   schedules: Schedule[];
@@ -24,6 +25,7 @@ const Calendar: React.FC<CalendarProps> = ({
 }) => {
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
   const displayHours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
+  const { refreshSchedules } = useApi();
 
   const [hoveredTime, setHoveredTime] = useState<Date | null>(null);
 
@@ -143,6 +145,12 @@ const Calendar: React.FC<CalendarProps> = ({
                       top={top}
                       height={height}
                       colors={{ planned: schedule.task.color }}
+                      onScheduleUpdated={(updatedSchedule) => {
+                        refreshSchedules();
+                      }}
+                      onScheduleDeleted={(id) => {
+                        refreshSchedules();
+                      }}
                     />
                   );
                 })}

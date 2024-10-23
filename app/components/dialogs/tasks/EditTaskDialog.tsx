@@ -1,46 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Collapsible from '@radix-ui/react-collapsible';
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import styles from '../DialogStyle.module.css';
+import { Task, UpdateTaskDto, tasksApi } from '@/app/api/tasksApi';
 import { ColorPicker, useColor } from "react-color-palette";
-import { Task, tasksApi, CreateTaskDto } from '@/app/api/tasksApi';
-import "react-color-palette/css";
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 
-interface CreateTaskDialogProps {
+interface EditTaskDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskCreated: (task: CreateTaskDto) => void;
+  task: Task | null;
+  onTaskUpdated: (task: Task) => void;
 }
 
-const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
+const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
   isOpen,
   onClose,
-  onTaskCreated,
+  task,
+  onTaskUpdated,
 }) => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowString = tomorrow.toISOString().split('T')[0];
-
-  const [taskData, setTaskData] = useState<CreateTaskDto>({
+  const [taskData, setTaskData] = useState<UpdateTaskDto>({
     title: '',
-    estimatedDuration: 60,
-    priority: 3,
-    type: 'default',
-    startDate: tomorrowString,
-    floating: false,
-    blacklistedDays: [],
-    whitelistedDays: [],
-    minDaysBetween: 0,
-    autoReschedule: true,
-    completedSessions: 0,
-    category: 'one-time',
-    timeOfDayPreference: 'preferred_time',
-    bufferTime: 0,
-    difficulty: 1,
-    canSplit: false,
-    notes: '',
-    color: '#d5cbea'
   });
   const [color, setColor] = useColor(taskData.color || "#561ecb");
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -54,30 +34,47 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     }));
   };
 
-  const validateTask = (task: CreateTaskDto): string | null => {
-    if (!task.title) return "Title is required";
-    if (task.estimatedDuration <= 0) return "Estimated duration must be greater than 0";
-    if (task.priority < 1 || task.priority > 5) return "Priority must be between 1 and 5";
-    if (task.category === 'recurring' && !task.recurrencePattern) return "Recurrence pattern is required for recurring tasks";
-    if (task.category === 'floating' && !task.floating) return "Floating must be true for floating tasks";
-    return null;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const error = validateTask(taskData);
-      if (error) {
-        setErrorMessage(error);
-        return;
-      }
-      tasksApi.create(taskData).then((task) => {
-        onTaskCreated(task);
+  useEffect(() => {
+    if (task) {
+      setTaskData({
+        title: task.title,
+        estimatedDuration: task.estimatedDuration,
+        priority: task.priority,
+        type: task.type,
+        category: task.category,
+        timeOfDayPreference: task.timeOfDayPreference,
+        startDate: task.startDate,
+        notes: task.notes,
+        difficulty: task.difficulty,
+        bufferTime: task.bufferTime,
+        minDaysBetween: task.minDaysBetween,
+        deadline: task.deadline,
+        recurrencePattern: task.recurrencePattern,
+        floating: task.floating,
+        autoReschedule: task.autoReschedule,
+        canSplit: task.canSplit,
+        endDate: task.endDate,
+        totalSessions: task.totalSessions,
+        targetSessionsPerPeriod: task.targetSessionsPerPeriod,
+        maxSessionsPerPeriod: task.maxSessionsPerPeriod,
+        periodUnit: task.periodUnit,
+        preferredTime: task.preferredTime,
+        color: task.color,
       });
     }
-    catch (error) {
-      console.error('Error creating task:', error);
-      setErrorMessage('An error occurred while creating the task');
+  }, [task]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!task) return;
+
+    try {
+      const updatedTask = await tasksApi.update(task.id, taskData);
+      onTaskUpdated(updatedTask);
+      onClose();
+    } catch (error) {
+      console.error('Error updating task:', error);
+      setErrorMessage('An error occurred while updating the task');
     }
   };
 
@@ -86,7 +83,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       <Dialog.Portal>
         <Dialog.Overlay className={styles.dialogOverlay} />
         <Dialog.Content className={styles.dialogContent}>
-          <Dialog.Title className={styles.dialogTitle}>Create New Task</Dialog.Title>
+          <Dialog.Title className={styles.dialogTitle}>Edit Task</Dialog.Title>
           <form onSubmit={handleSubmit}>
             {errorMessage && <div className={styles.errorMessage}>{errorMessage}</div>}
             <div className={styles.formGroup}>
@@ -407,7 +404,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <button type="button" className={styles.closeButton}>Cancel</button>
               </Dialog.Close>
               <button type="submit" className={styles.submitButton}>
-                Create Task
+                Save Task
               </button>
             </div>
           </form>
@@ -417,4 +414,4 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   );
 };
 
-export default CreateTaskDialog;
+export default EditTaskDialog;

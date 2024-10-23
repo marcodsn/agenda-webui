@@ -4,9 +4,6 @@ import React, { useState, useEffect } from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import { useApi } from './contexts/ApiContext';
-import { tasksApi, CreateTaskDto } from './api/tasksApi';
-import { schedulesApi, CreateScheduleDto, ScheduleStatus } from './api/schedulesApi';
-import { settingsApi } from './api/settingsApi';
 import Calendar from './components/Calendar';
 import Header from './components/Header';
 import { IconChevronLeft, IconChevronRight, IconRefresh, IconPlus } from '@tabler/icons-react';
@@ -68,7 +65,7 @@ export default function Home() {
   const upcomingSchedules = schedules
     .filter(schedule => new Date(schedule.endTime) > new Date())
     .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-    .slice(0, 10);
+    .slice(0, 30);
 
   const getDatesForWeek = (startDate: Date) => {
     const dates = [];
@@ -147,13 +144,16 @@ export default function Home() {
                 onTaskCreated={handleTaskCreated}
               />
               <ul className="mt-4">
-                {tasks.map(task => (
+                {tasks.sort((a, b) => a.title.localeCompare(b.title)).map(task => (
                   <li key={task.id} className="mb-2">
                     <ItemCard
-                      title={task.title}
-                      subtitle={task.description || 'No description'}
-                      taskColor={task.color}
-                      onClick={() => console.log('Clicked task:', task.id)}
+                      task={task}
+                      onTaskUpdated={(updatedTask) => {
+                        refreshTasks();
+                      }}
+                      onTaskDeleted={(id) => {
+                        refreshTasks();
+                      }}
                     />
                   </li>
                 ))}
@@ -180,10 +180,10 @@ export default function Home() {
                     <SettingCard
                       setting={setting}
                       onSettingUpdated={(updatedSetting) => {
-                        refreshSettings(); // Refresh all settings after update
+                        refreshSettings();
                       }}
                       onSettingDeleted={(key) => {
-                        refreshSettings(); // Refresh all settings after deletion
+                        refreshSettings();
                       }}
                     />
                   </li>

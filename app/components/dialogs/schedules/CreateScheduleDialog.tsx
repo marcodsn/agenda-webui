@@ -4,7 +4,6 @@ import * as Select from '@radix-ui/react-select';
 import { Task, tasksApi, CreateTaskDto } from '@/app/api/tasksApi';
 import { schedulesApi, CreateScheduleDto, ScheduleStatus } from '@/app/api/schedulesApi';
 import { IconPlus } from '@tabler/icons-react';
-// import styles from './CreateScheduleDialog.module.css';
 import styles from '../DialogStyle.module.css';
 
 interface CreateScheduleDialogProps {

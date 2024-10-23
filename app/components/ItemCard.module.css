@@ -13,6 +13,12 @@
     background-color: #353535;
 }
 
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .title {
     font-size: 16px;
     font-weight: 600;
@@ -21,5 +27,25 @@
 
 .subtitle {
     font-size: 14px;
+    color: var(--color-silver);
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.itemCard:hover .actions {
+    opacity: 1;
+}
+
+.actionIcon {
+    cursor: pointer;
+    color: var(--color-light-gray);
+}
+
+.actionIcon:hover {
     color: var(--color-silver);
 }

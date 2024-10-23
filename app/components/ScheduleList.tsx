@@ -2,11 +2,12 @@ import React from 'react';
 import ItemCard from './ItemCard';
 import { Schedule } from '../api/schedulesApi';
 import { format, isToday, isTomorrow, isThisWeek, isThisMonth } from 'date-fns';
+import { useApi } from '../contexts/ApiContext';
 
 // Helper function to group schedules by date
 const groupSchedulesByDate = (schedules: Schedule[]) => {
   const groups: { [key: string]: Schedule[] } = {};
-  
+
   schedules.forEach(schedule => {
     const date = new Date(schedule.startTime);
     const key = format(date, 'yyyy-MM-dd');
@@ -31,6 +32,7 @@ const getDateHeader = (dateString: string) => {
 
 const ScheduleList: React.FC<{ upcomingSchedules: Schedule[] }> = ({ upcomingSchedules }) => {
   const groupedSchedules = groupSchedulesByDate(upcomingSchedules);
+  const { refreshTasks, refreshSchedules } = useApi();
 
   return (
     <div className='pt-4'>
@@ -41,10 +43,20 @@ const ScheduleList: React.FC<{ upcomingSchedules: Schedule[] }> = ({ upcomingSch
             {schedules.map(schedule => (
               <ItemCard
                 key={schedule.id}
-                title={schedule.task.title}
-                subtitle={format(new Date(schedule.startTime), 'HH:mm')}
-                onClick={() => console.log('Clicked schedule:', schedule.id)}
-                taskColor={schedule.task.color}
+                task={schedule.task}
+                schedule={schedule}
+                onTaskUpdated={(updatedTask) => {
+                  refreshTasks();
+                }}
+                onTaskDeleted={(id) => {
+                  refreshTasks();
+                }}
+                onScheduleUpdated={(updatedSchedule) => {
+                  refreshSchedules();
+                }}
+                onScheduleDeleted={(id) => {
+                  refreshSchedules();
+                }}
               />
             ))}
           </ul>
