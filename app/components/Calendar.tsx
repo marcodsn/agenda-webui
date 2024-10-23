@@ -87,8 +87,18 @@ const Calendar: React.FC<CalendarProps> = ({
   const isToday = (date: Date) => {
     const today = new Date();
     return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
+  };
+
+  // Utility functions for timezone conversion
+  const convertUTCToLocal = (utcDate: Date | string): Date => {
+    const date = new Date(utcDate);
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  };
+
+  const convertLocalToUTC = (localDate: Date): Date => {
+    return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
   };
 
   return (
@@ -130,12 +140,15 @@ const Calendar: React.FC<CalendarProps> = ({
             >
               {schedules
                 .filter(schedule => {
-                  const scheduleDate = new Date(schedule.startTime);
+                  // const scheduleDate = new Date(schedule.startTime);
+                  const scheduleDate = convertUTCToLocal(schedule.startTime);
                   return scheduleDate.toDateString() === date.toDateString();
                 })
                 .map(schedule => {
-                  const start = new Date(schedule.startTime);
-                  const end = new Date(schedule.endTime);
+                  // const start = new Date(schedule.startTime);
+                  // const end = new Date(schedule.endTime);
+                  const start = convertUTCToLocal(schedule.startTime);
+                  const end = convertUTCToLocal(schedule.endTime);
                   const top = ((start.getHours() - startHour + start.getMinutes() / 60) / (endHour - startHour)) * 100;
                   const height = ((end.getHours() - start.getHours() + (end.getMinutes() - start.getMinutes()) / 60) / (endHour - startHour)) * 100;
                   return (

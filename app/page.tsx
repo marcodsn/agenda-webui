@@ -62,9 +62,21 @@ export default function Home() {
     return monday;
   }
 
+  // Utility functions for timezone conversion
+  const convertUTCToLocal = (utcDate: Date | string): Date => {
+    const date = new Date(utcDate);
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  };
+
+  const convertLocalToUTC = (localDate: Date): Date => {
+    return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+  };
+
   const upcomingSchedules = schedules
-    .filter(schedule => new Date(schedule.endTime) > new Date())
-    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+    // .filter(schedule => new Date(schedule.endTime) > new Date())
+    .filter(schedule => convertUTCToLocal(schedule.endTime) > new Date())
+    // .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+    .sort((a, b) => convertUTCToLocal(a.startTime).getTime() - convertUTCToLocal(b.startTime).getTime())
     .slice(0, 30);
 
   const getDatesForWeek = (startDate: Date) => {

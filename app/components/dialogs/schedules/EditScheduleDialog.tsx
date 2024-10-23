@@ -20,7 +20,7 @@ const EditScheduleDialog: React.FC<EditScheduleDialogProps> = ({
   const [scheduleData, setScheduleData] = useState<UpdateScheduleDto>({
     startTime: '',
     endTime: '',
-    status: schedule.status,
+    status: undefined,
     notes: '',
   });
 
@@ -59,7 +59,9 @@ const EditScheduleDialog: React.FC<EditScheduleDialogProps> = ({
   };
 
   const handleScheduleStatusChange = (status: ScheduleStatus) => {
+    if (!status) return;
     setScheduleData((prev) => ({ ...prev, status }));
+    console.log(status);
   };
 
   return (
@@ -91,10 +93,13 @@ const EditScheduleDialog: React.FC<EditScheduleDialogProps> = ({
             />
             <label htmlFor="status" className={styles.label}>Status</label>
             <Select.Root
+              value={scheduleData.status}
               onValueChange={handleScheduleStatusChange}
             >
               <Select.Trigger className={styles.selectTrigger}>
-                {scheduleData.status}
+                <Select.Value>
+                  {scheduleData.status ? scheduleData.status.toLowerCase() : 'Select status'}
+                </Select.Value>
               </Select.Trigger>
               <Select.Content className={styles.selectContent}>
                 <Select.Item value={ScheduleStatus.PLANNED} className={styles.selectItem}>Pending</Select.Item>

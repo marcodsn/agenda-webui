@@ -17,13 +17,13 @@ interface ScheduleItemProps {
   onScheduleDeleted?: (id: number) => void;
 }
 
-const ScheduleItem: React.FC<ScheduleItemProps> = ({ 
-  schedule, 
-  top, 
-  height, 
+const ScheduleItem: React.FC<ScheduleItemProps> = ({
+  schedule,
+  top,
+  height,
   colors,
   onScheduleUpdated,
-  onScheduleDeleted 
+  onScheduleDeleted
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -50,7 +50,8 @@ const ScheduleItem: React.FC<ScheduleItemProps> = ({
   };
 
   const getDarkerColor = (color: string, amount = 40) => {
-    const hex = color.replace('#', '');
+    // const hex = color.replace('#', '');
+    const hex = color.substring(0, 7).replace('#', '');
     const num = parseInt(hex, 16);
     const r = Math.max(0, (num >> 16) - amount);
     const b = Math.max(0, ((num >> 8) & 0x00FF) - amount);
@@ -90,6 +91,16 @@ const ScheduleItem: React.FC<ScheduleItemProps> = ({
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Utility functions for timezone conversion
+  const convertUTCToLocal = (utcDate: Date | string): Date => {
+    const date = new Date(utcDate);
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  };
+
+  const convertLocalToUTC = (localDate: Date): Date => {
+    return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+  };
+
   return (
     <>
       <div
@@ -127,7 +138,8 @@ const ScheduleItem: React.FC<ScheduleItemProps> = ({
           )}
         </div>
         <div className={styles.time}>
-          {formatTime(new Date(schedule.startTime))} - {formatTime(new Date(schedule.endTime))}
+          {/* {formatTime(new Date(schedule.startTime))} - {formatTime(new Date(schedule.endTime))} */}
+          {formatTime(convertUTCToLocal(schedule.startTime))} - {formatTime(convertUTCToLocal(schedule.endTime))}
         </div>
         {isHovered && hasDescription && (
           <div className={styles.details}>

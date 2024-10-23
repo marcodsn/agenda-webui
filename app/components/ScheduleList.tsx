@@ -8,8 +8,15 @@ import { useApi } from '../contexts/ApiContext';
 const groupSchedulesByDate = (schedules: Schedule[]) => {
   const groups: { [key: string]: Schedule[] } = {};
 
+  // Utility functions for timezone conversion
+  const convertUTCToLocal = (utcDate: Date | string): Date => {
+    const date = new Date(utcDate);
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  };
+
   schedules.forEach(schedule => {
-    const date = new Date(schedule.startTime);
+    // const date = new Date(schedule.startTime);
+    const date = convertUTCToLocal(schedule.startTime);
     const key = format(date, 'yyyy-MM-dd');
     if (!groups[key]) {
       groups[key] = [];
@@ -28,6 +35,16 @@ const getDateHeader = (dateString: string) => {
   if (isThisWeek(date)) return format(date, 'EEEE'); // Day of the week
   if (isThisMonth(date)) return format(date, 'MMMM d'); // Month and day
   return format(date, 'MMMM d, yyyy'); // Full date for dates beyond this month
+};
+
+// Utility functions for timezone conversion
+const convertUTCToLocal = (utcDate: Date | string): Date => {
+  const date = new Date(utcDate);
+  return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+};
+
+const convertLocalToUTC = (localDate: Date): Date => {
+  return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
 };
 
 const ScheduleList: React.FC<{ upcomingSchedules: Schedule[] }> = ({ upcomingSchedules }) => {

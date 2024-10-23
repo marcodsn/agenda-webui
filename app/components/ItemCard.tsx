@@ -54,6 +54,16 @@ const ItemCard: React.FC<ItemCardProps> = ({
     }
   };
 
+  // Utility functions for timezone conversion
+  const convertUTCToLocal = (utcDate: Date | string): Date => {
+    const date = new Date(utcDate);
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  };
+
+  const convertLocalToUTC = (localDate: Date): Date => {
+    return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+  };
+
   return (
     <>
       <div
@@ -90,7 +100,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
         {!task.description && !schedule && <p className={styles.subtitle}>No description</p>}
         {schedule && (
           <p className={styles.scheduleTime}>
-            {new Date(schedule.startTime).toLocaleTimeString([], {
+            {/* {new Date(schedule.startTime).toLocaleTimeString([], { */}
+            {convertUTCToLocal(schedule.startTime).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit'
             })}
