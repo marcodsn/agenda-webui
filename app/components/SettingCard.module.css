@@ -1,0 +1,45 @@
+.settingCard {
+    font-size: 14px;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--color-silver);
+}
+
+.settingCard:hover {
+    /* cursor: pointer; */
+    background-color: #353535;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.key {
+    font-weight: 600;
+    color: var(--color-light-gray);
+}
+
+.value {
+    color: var(--color-silver);
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.settingCard:hover .actions {
+    opacity: 1;
+}
+
+.actionIcon {
+    cursor: pointer;
+    color: var(--color-light-gray);
+}
+
+.actionIcon:hover {
+    color: var(--color-silver);
+}

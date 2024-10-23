@@ -11,9 +11,11 @@ import Calendar from './components/Calendar';
 import Header from './components/Header';
 import { IconChevronLeft, IconChevronRight, IconRefresh, IconPlus } from '@tabler/icons-react';
 import ScheduleList from './components/ScheduleList';
-import CreateScheduleDialog from './components/CreateScheduleDialog';
-import CreateTaskDialog from './components/CreateTaskDialog';
+import CreateScheduleDialog from './components/dialogs/schedules/CreateScheduleDialog';
+import CreateTaskDialog from './components/dialogs/tasks/CreateTaskDialog';
+import CreateSettingDialog from './components/dialogs/settings/CreateSettingDialog';
 import ItemCard from './components/ItemCard';
+import SettingCard from './components/SettingCard';
 
 export default function Home() {
   const { tasks, schedules, settings, refreshTasks, refreshSchedules, refreshSettings } = useApi();
@@ -21,12 +23,17 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isCreateScheduleDialogOpen, setIsCreateScheduleDialogOpen] = useState(false);
   const [isCreateTaskDialogOpen, setIsCreateTaskDialogOpen] = useState(false);
+  const [isCreateSettingDialogOpen, setIsCreateSettingDialogOpen] = useState(false);
 
+  // Dialog handlers
   const openCreateScheduleDialog = () => setIsCreateScheduleDialogOpen(true);
   const closeCreateScheduleDialog = () => setIsCreateScheduleDialogOpen(false);
 
   const openCreateTaskDialog = () => setIsCreateTaskDialogOpen(true);
   const closeCreateTaskDialog = () => setIsCreateTaskDialogOpen(false);
+
+  const openCreateSettingDialog = () => setIsCreateSettingDialogOpen(true);
+  const closeCreateSettingDialog = () => setIsCreateSettingDialogOpen(false);
 
   const handleScheduleCreated = () => {
     closeCreateScheduleDialog();
@@ -38,6 +45,12 @@ export default function Home() {
     refreshTasks();
   }
 
+  const handleSettingCreated = () => {
+    closeCreateSettingDialog();
+    refreshSettings();
+  }
+
+  // Update current time every minute
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
@@ -51,59 +64,6 @@ export default function Home() {
     monday.setHours(0, 0, 0, 0); // Set time to midnight
     return monday;
   }
-
-  const createDemoTask = async () => {
-    const demoTask: CreateTaskDto = {
-      title: `Demo Task ${tasks.length + 1}`,
-      estimatedDuration: 60,
-      priority: 3,
-      type: 'default',
-      category: 'one-time',
-      timeOfDayPreference: 'preferred_time',
-      floating: false,
-      blacklistedDays: [],
-      whitelistedDays: [],
-      minDaysBetween: 0,
-      autoReschedule: true,
-      completedSessions: 0,
-      bufferTime: 0,
-      difficulty: 3,
-      canSplit: false,
-      description: 'This is a demo task',
-    };
-
-    try {
-      await tasksApi.create(demoTask);
-      refreshTasks();
-    } catch (error) {
-      console.error('Error creating demo task:', error);
-    }
-  };
-
-  const createDemoSchedule = async () => {
-    if (tasks.length === 0) {
-      alert('Please create a task first');
-      return;
-    }
-    const demoSchedule: CreateScheduleDto = {
-      taskId: tasks[0].id,
-      startTime: new Date().toISOString(),
-      endTime: new Date(Date.now() + 3600000).toISOString(),
-      status: ScheduleStatus.PLANNED,
-      notes: 'Demo schedule',
-    };
-    await schedulesApi.create(demoSchedule);
-    refreshSchedules();
-  };
-
-  const createDemoSetting = async () => {
-    const demoSetting = {
-      key: `demoSetting${settings.length + 1}`,
-      value: `value${settings.length + 1}`,
-    };
-    await settingsApi.create(demoSetting);
-    refreshSettings();
-  };
 
   const upcomingSchedules = schedules
     .filter(schedule => new Date(schedule.endTime) > new Date())
@@ -155,30 +115,32 @@ export default function Home() {
               <Tabs.Trigger value="settings" className="tab-trigger">Settings</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="upcoming" className="flex-grow overflow-auto custom-scrollbar">
-              <button onClick={openCreateScheduleDialog} className="custom-button">
-                <IconPlus className='size-5 mr-2' />
-                <span>New Schedule</span>
-              </button>
+              <div className="flex">
+                <button onClick={openCreateScheduleDialog} className="custom-button">
+                  <IconPlus className='size-5 mr-2' />
+                  <span>New Schedule</span>
+                </button>
+                <button onClick={refreshSchedules} className="ml-2">
+                  <IconRefresh className='size-5' />
+                </button>
+              </div>
               <CreateScheduleDialog
                 isOpen={isCreateScheduleDialogOpen}
                 onClose={closeCreateScheduleDialog}
                 onScheduleCreated={handleScheduleCreated}
               />
-              {/* <button onClick={createDemoSchedule} className="custom-button">
-                <IconPlus className='size-5 mr-2' />
-                <span>Demo Schedule</span>
-              </button> */}
               <ScheduleList upcomingSchedules={upcomingSchedules} />
             </Tabs.Content>
             <Tabs.Content value="tasks" className="flex-grow overflow-auto custom-scrollbar">
-              <button onClick={openCreateTaskDialog} className="custom-button">
-                <IconPlus className='size-5 mr-2' />
-                <span>New Task</span>
-              </button>
-              {/* <button onClick={createDemoTask} className="custom-button">
-                <IconPlus className='size-5 mr-2' />
-                <span>Demo Task</span>
-              </button> */}
+              <div className="flex">
+                <button onClick={openCreateTaskDialog} className="custom-button">
+                  <IconPlus className='size-5 mr-2' />
+                  <span>New Task</span>
+                </button>
+                <button onClick={refreshTasks} className="ml-2">
+                  <IconRefresh className='size-5' />
+                </button>
+              </div>
               <CreateTaskDialog
                 isOpen={isCreateTaskDialogOpen}
                 onClose={closeCreateTaskDialog}
@@ -189,7 +151,7 @@ export default function Home() {
                   <li key={task.id} className="mb-2">
                     <ItemCard
                       title={task.title}
-                      subtitle={task.description}
+                      subtitle={task.description || 'No description'}
                       taskColor={task.color}
                       onClick={() => console.log('Clicked task:', task.id)}
                     />
@@ -198,10 +160,35 @@ export default function Home() {
               </ul>
             </Tabs.Content>
             <Tabs.Content value="settings" className="flex-grow overflow-auto custom-scrollbar">
-              <button onClick={createDemoSetting} className="custom-button">
-                <IconPlus className='size-5 mr-2' />
-                <span>Demo Setting</span>
-              </button>
+              <div className="flex">
+                <button onClick={openCreateSettingDialog} className="custom-button">
+                  <IconPlus className='size-5 mr-2' />
+                  <span>New Setting</span>
+                </button>
+                <button onClick={refreshSettings} className="ml-2">
+                  <IconRefresh className='size-5' />
+                </button>
+              </div>
+              <CreateSettingDialog
+                isOpen={isCreateSettingDialogOpen}
+                onClose={closeCreateSettingDialog}
+                onSettingCreated={handleSettingCreated}
+              />
+              <ul className="mt-4">
+                {settings.map(setting => (
+                  <li key={setting.id} className="mb-2">
+                    <SettingCard
+                      setting={setting}
+                      onSettingUpdated={(updatedSetting) => {
+                        refreshSettings(); // Refresh all settings after update
+                      }}
+                      onSettingDeleted={(key) => {
+                        refreshSettings(); // Refresh all settings after deletion
+                      }}
+                    />
+                  </li>
+                ))}
+              </ul>
             </Tabs.Content>
           </Tabs.Root>
         </aside>

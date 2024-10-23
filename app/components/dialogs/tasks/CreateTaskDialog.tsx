@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
-import styles from './CreateTaskDialog.module.css';
+// import styles from './CreateTaskDialog.module.css';
+import styles from '../DialogStyle.module.css';
 import { ColorPicker, useColor } from "react-color-palette";
-import { Task, tasksApi, CreateTaskDto } from '../api/tasksApi';
+import { Task, tasksApi, CreateTaskDto } from '@/app/api/tasksApi';
 import "react-color-palette/css";
 
 interface CreateTaskDialogProps {
@@ -391,12 +392,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </Collapsible.Root>
 
             <div className={styles.buttonContainer}>
-              <button type="submit" className={styles.submitButton}>
-                Create Task
-              </button>
               <Dialog.Close asChild>
                 <button type="button" className={styles.closeButton}>Cancel</button>
               </Dialog.Close>
+              <button type="submit" className={styles.submitButton}>
+                Create Task
+              </button>
             </div>
           </form>
         </Dialog.Content>

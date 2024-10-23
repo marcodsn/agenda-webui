@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Select from '@radix-ui/react-select';
-import { Task, tasksApi, CreateTaskDto } from '../api/tasksApi';
-import { schedulesApi, CreateScheduleDto, ScheduleStatus } from '../api/schedulesApi';
+import { Task, tasksApi, CreateTaskDto } from '@/app/api/tasksApi';
+import { schedulesApi, CreateScheduleDto, ScheduleStatus } from '@/app/api/schedulesApi';
 import { IconPlus } from '@tabler/icons-react';
-import styles from './CreateScheduleDialog.module.css';
+// import styles from './CreateScheduleDialog.module.css';
+import styles from '../DialogStyle.module.css';
 
 interface CreateScheduleDialogProps {
   isOpen: boolean;
@@ -204,12 +205,12 @@ const CreateScheduleDialog: React.FC<CreateScheduleDialogProps> = ({
               className={styles.textarea}
             />
             <div className={styles.buttonContainer}>
-              <button type="submit" className={styles.submitButton}>
-                Create Schedule
-              </button>
               <Dialog.Close asChild>
                 <button type="button" className={styles.closeButton}>Close</button>
               </Dialog.Close>
+              <button type="submit" className={styles.submitButton}>
+                Create Schedule
+              </button>
             </div>
           </form>
         </Dialog.Content>
